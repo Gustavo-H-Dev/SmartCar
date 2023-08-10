@@ -61,6 +61,10 @@ void sendHtml() {
           <h2>Re</h2>
           <a href="/toggle/5" class="btn re_TEXT"  >re_TEXT</a>
         </div>
+        <div>
+        <img id="stream" src="http://10.0.1.155:81/stream" crossorigin="">
+        </div>        
+        
       </body>
     </html>
   )";
