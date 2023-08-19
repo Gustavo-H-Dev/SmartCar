@@ -25,10 +25,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define LOGO_WIDTH    16
 
 // Definir o login e senha do WIFI
-#define WIFI_SSID "Gustavo"
-#define WIFI_PASSWORD "97752117"
-#define WIFI_SSID1 "SIAM_UNIFI"
-#define WIFI_PASSWORD2 "siam2k19"
+//#define WIFI_SSID "Gustavo"
+//#define WIFI_PASSWORD "97752117"
+#define WIFI_SSID "SIAM_UNIFI"
+#define WIFI_PASSWORD "siam2k19"
 // Defining the WiFi channel speeds up the connection
 #define WIFI_CHANNEL 6
 
