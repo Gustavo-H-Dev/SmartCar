@@ -23,6 +23,8 @@ bool StpStatus = false;
 WebServer server(80);
 
 
+
+
 //Rotina que contém a página Web
 void sendHtml() {
   String response = R"(

@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
+#include <WiFiMulti.h>
 #include <WebServer.h>
 #include <uri/UriBraces.h>
 #include <SPI.h>
@@ -27,14 +28,21 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // Definir o login e senha do WIFI
 //#define WIFI_SSID "Gustavo"
 //#define WIFI_PASSWORD "97752117"
-#define WIFI_SSID "SIAM_UNIFI"
-#define WIFI_PASSWORD "siam2k19"
+#define WIFI_SSID "Gustavo"
+#define WIFI_PASSWORD "97752117"
 // Defining the WiFi channel speeds up the connection
 #define WIFI_CHANNEL 6
 
 //define sound speed in cm/uS
 #define SOUND_SPEED 0.034
 #define CM_TO_INCH 0.393701
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Objetos para uso das bibliotecas
+/////////////////////////////////////////////////////////////////////////////////////////
+// para ser usado conexão de varios Wifis
+WiFiMulti wifiMulti;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Definir Variaveis Para indicar o que cada pino vai ser
@@ -107,36 +115,33 @@ void setup()
   display.setCursor(0,0);
 
 //Iniciando o WIFI
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD, WIFI_CHANNEL);
-    Serial.print("Connecting to WiFi ");
-  display.println("Connecting to wifi:");
-  Serial.print(WIFI_SSID);
-  display.display(); // actual
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    display.setCursor(0,0);
+    wifiMulti.addAP("Gustavo", "97752117");
+    wifiMulti.addAP("SIAM_UNIFI", "siam2k19");
+    wifiMulti.addAP("Machado", "99053909");
+    wifiMulti.addAP("abc", "12345678");
+    wifiMulti.addAP("Casa1", "180934eb");
+    Serial.println("Connecting Wifi...");
     display.println("Connecting to wifi:");
-    display.print(WIFI_SSID);
-    display.display(); // actual
-    display.setCursor(0,15);
-    display.println("Status: ");
-    display.print(StsMeaning);
-    display.display(); // actual
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println(" Connected!");
-  delay(1000);
-  display.clearDisplay();
-  display.setCursor(0,0);  
-  Serial.print("IP address: ");
-  Serial.print(WiFi.localIP());
-  display.println("Connected!");
-  display.print("IP: ");
-  display.println(WiFi.localIP());
-  display.display(); // actual
+    display.display();
+    while(wifiMulti.run() != WL_CONNECTED) {
+       delay(5000);        
+       Serial.print(".");
+    }
+    
+    Serial.print("\n");
+    Serial.print("WiFi connected : ");
+    Serial.print(WiFi.SSID());
+    Serial.print("IP address : ");
+    Serial.println(WiFi.localIP());
 
-
+    display.clearDisplay();
+    display.display();
+    display.setCursor(0,0);
+    display.print("Rede:");
+    display.println(WiFi.SSID());
+    display.print("IP: ");
+    display.println(WiFi.localIP());
+    display.display(); // actual
 
   //Caso seja acessado o IP, onde o final vai ser "/" manda a página web tradicional
   server.on("/", sendHtml);
