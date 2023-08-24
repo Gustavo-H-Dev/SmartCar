@@ -17,17 +17,24 @@ bool DirStatus = false;
 bool EsqStatus = false;
 bool StpStatus = false;
 
+//example
+bool led1State = false;
+bool led2State = false;
 
+const char* PARAM_MESSAGE = "message";
 
 // Definindo a porta
-WebServer server(80);
+//WebServer server(80);
+AsyncWebServer server(80);
+
+//caso acesse uma página incorreta
+void notFound(AsyncWebServerRequest *request) {
+    request->send(404, "text/plain", "Not found");
+}
 
 
-
-
-//Rotina que contém a página Web
-void sendHtml() {
-  String response = R"(
+String createHtml() {
+     String response = R"(
     <!DOCTYPE html><html>
       <head>
         <title>Controle De carrinho</title>
@@ -76,5 +83,5 @@ void sendHtml() {
   response.replace("dir_TEXT", DirStatus ? "ON" : "OFF");
   response.replace("re_TEXT", BckStatus ? "ON" : "OFF");
   response.replace("frente_TEXT", FrtStatus ? "ON" : "OFF");
-  server.send(200, "text/html", response);
+    return response;
 }

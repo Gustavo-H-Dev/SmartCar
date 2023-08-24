@@ -12,8 +12,6 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
 #include <Pages.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -52,13 +50,6 @@ WiFiMulti wifiMulti;
 //pinos que estão no Driver do motor do carrinho
 const int DirFrente = 26;
 const int DirTras = 27;
-
-//const int LED1 = 26;
-//const int LED2 = 27;
-
-//bool led1State = false;
-//bool led2State = false;
-
 const int EsqFrente = 13;
 const int EsqTras = 12;
 //Sensor de distancia
@@ -152,14 +143,23 @@ void setup()
     display.println(WiFi.localIP());
     display.display(); // actual
 
-   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-        if(request->hasParam("toggle")) {
-            AsyncWebParameter* led = request->getParam("toggle");
-            Serial.print("Toggle LED #");
-            Serial.println(led->value());
-      
-            switch (led->value().toInt()) {
-case 1:
+  //Caso seja acessado o IP, onde o final vai ser "/" manda a página web tradicional
+  server.on("/", sendHtml);
+
+  //Caso esteja em alguma das páginas envia novamente e printa o a ação no monitor
+  server.on(UriBraces("/toggle/{}"), []() {
+    String led = server.pathArg(0);
+    Serial.print("Ligar motor #");
+    Serial.println(led);
+
+
+//        1= frente
+//        2= esq
+//        3= Stop
+//        4= Dir
+//        5= Back
+    switch (led.toInt()) {
+      case 1:
         FrtStatus = !FrtStatus;
         BckStatus = false;
         DirStatus = false;
@@ -214,39 +214,14 @@ case 1:
         digitalWrite(DirTras, BckStatus);
         digitalWrite(EsqTras, BckStatus);
         break;
-            }
-        }
-  
-        request->send(200, "text/html", createHtml());
-    });
+    }
 
-    // Send a GET request to <IP>/get?message=<message>
-    server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        String message;
-        if (request->hasParam(PARAM_MESSAGE)) {
-            message = request->getParam(PARAM_MESSAGE)->value();
-        } else {
-            message = "No message sent";
-        }
-        request->send(200, "text/plain", "Hello, GET: " + message);
-    });
+    sendHtml();
+  });
 
-    // Send a POST request to <IP>/post with a form field message set to <message>
-    server.on("/post", HTTP_POST, [](AsyncWebServerRequest *request){
-        String message;
-        if (request->hasParam(PARAM_MESSAGE, true)) {
-            message = request->getParam(PARAM_MESSAGE, true)->value();
-        } else {
-            message = "No message sent";
-        }
-        request->send(200, "text/plain", "Hello, POST: " + message);
-    });
+  server.begin();
 
-    server.onNotFound(notFound);
 
-    server.begin();
-
-   
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 //Traduz status do WiFi
@@ -352,7 +327,7 @@ void ReadDis()
 void loop()
 {
   
-  //server.handleClient();
+  server.handleClient();
   delay(200); 
   timr0 = (timr1 - millis());
   if (timr0 < -2000)
