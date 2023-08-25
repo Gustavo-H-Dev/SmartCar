@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 //Defines
 /////////////////////////////////////////////////////////////////////////////////////////
+//Define se o ambiente é de teste virtual
+//#define VIRTUAL
+
 //OLED
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
@@ -27,11 +30,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define LOGO_HEIGHT   16
 #define LOGO_WIDTH    16
 
-// Definir o login e senha do WIFI
-//#define WIFI_SSID "Gustavo"
-//#define WIFI_PASSWORD "97752117"
-#define WIFI_SSID "Gustavo"
-#define WIFI_PASSWORD "97752117"
+
+
 // Defining the WiFi channel speeds up the connection
 #define WIFI_CHANNEL 6
 
@@ -87,6 +87,31 @@ int timr1 = 0;
 int StsWifi = 0;
 String StsMeaning = "Hello"; 
 
+
+String outputState(int output){
+  if(digitalRead(output)){
+    return "checked";
+  }
+  else {
+    return "";
+  }
+}
+
+// Replaces placeholder with button section in your web page
+String processor(const String& var){
+  //Serial.println(var);
+  if(var == "BUTTONPLACEHOLDER"){
+    String buttons = "";
+    buttons += "<h4>Output - GPIO 2</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"2\" " + outputState(2) + "><span class=\"slider\"></span></label>";
+    buttons += "<h4>Output - GPIO 4</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"4\" " + outputState(4) + "><span class=\"slider\"></span></label>";
+    buttons += "<h4>Output - GPIO 33</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"33\" " + outputState(33) + "><span class=\"slider\"></span></label>";
+    return buttons;
+  }
+  return String();
+}
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //Rotina de configuração inicial 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -124,11 +149,14 @@ void setup()
   display.setCursor(0,0);
 
 //Iniciando o WIFI
+// Definir o login e senha do WIFI
+#ifndef VIRTUAL
     wifiMulti.addAP("Gustavo", "97752117");
     wifiMulti.addAP("SIAM_UNIFI", "siam2k19");
     wifiMulti.addAP("Machado", "99053909");
     wifiMulti.addAP("abc", "12345678");
     wifiMulti.addAP("Casa1", "180934eb");
+    wifiMulti.addAP("Wokwi-GUEST", "");
     Serial.println("Connecting Wifi...");
     display.println("Connecting to wifi:");
     display.display();
@@ -136,7 +164,16 @@ void setup()
        delay(5000);        
        Serial.print(".");
     }
-    
+    Serial.print("Não virtual");
+#else
+  WiFi.begin("Wokwi-GUEST", "", 6);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(100);
+    Serial.print(".");
+  }
+  Serial.print("Virtual");
+#endif
+  Serial.println(" Conectado!");    
     Serial.print("\n");
     Serial.print("WiFi connected : ");
     Serial.print(WiFi.SSID());
@@ -152,102 +189,38 @@ void setup()
     display.println(WiFi.localIP());
     display.display(); // actual
 
-   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-        if(request->hasParam("toggle")) {
-            AsyncWebParameter* led = request->getParam("toggle");
-            Serial.print("Toggle LED #");
-            Serial.println(led->value());
-      
-            switch (led->value().toInt()) {
-case 1:
-        FrtStatus = !FrtStatus;
-        BckStatus = false;
-        DirStatus = false;
-        EsqStatus = false;
-        StpStatus = false;
-        digitalWrite(DirFrente, FrtStatus);
-        digitalWrite(EsqFrente, FrtStatus);
-        digitalWrite(DirTras, LOW);
-        digitalWrite(EsqTras, LOW);
-        break;
-      case 2:
-        EsqStatus = !EsqStatus;
-        FrtStatus = false;
-        BckStatus = false;
-        DirStatus = false;
-        StpStatus = false;
-        digitalWrite(EsqFrente, EsqStatus);
-        digitalWrite(DirFrente, LOW);
-        digitalWrite(DirTras, LOW);
-        digitalWrite(EsqTras, LOW);
-        break;
-      case 3:
-        StpStatus = !StpStatus;
-        FrtStatus = false;
-        BckStatus = false;
-        DirStatus = false;
-        EsqStatus = false;
-        digitalWrite(EsqFrente, LOW);
-        digitalWrite(DirFrente, LOW);
-        digitalWrite(DirTras, LOW);
-        digitalWrite(EsqTras, LOW);
-        break;
-      case 4:
-        DirStatus = !DirStatus;
-        FrtStatus = false;
-        BckStatus = false;
-        EsqStatus = false;
-        StpStatus = false;
-        digitalWrite(EsqFrente, LOW);
-        digitalWrite(DirFrente, DirStatus);
-        digitalWrite(DirTras, LOW);
-        digitalWrite(EsqTras, LOW);
-        break;
-      case 5:
-        BckStatus = !BckStatus;
-        FrtStatus = false;
-        DirStatus = false;
-        EsqStatus = false;
-        StpStatus = false;
-        digitalWrite(EsqFrente, LOW);
-        digitalWrite(DirFrente, LOW);
-        digitalWrite(DirTras, BckStatus);
-        digitalWrite(EsqTras, BckStatus);
-        break;
-            }
-        }
-  
-        request->send(200, "text/html", createHtml());
-    });
+/////////////////////////////////////////////////////////////////////////////////////////
+//Gerencia da página Web
+/////////////////////////////////////////////////////////////////////////////////////////
+  // Route for root / web page
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", index_html, processor);
+  });
 
-    // Send a GET request to <IP>/get?message=<message>
-    server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        String message;
-        if (request->hasParam(PARAM_MESSAGE)) {
-            message = request->getParam(PARAM_MESSAGE)->value();
-        } else {
-            message = "No message sent";
-        }
-        request->send(200, "text/plain", "Hello, GET: " + message);
-    });
-
-    // Send a POST request to <IP>/post with a form field message set to <message>
-    server.on("/post", HTTP_POST, [](AsyncWebServerRequest *request){
-        String message;
-        if (request->hasParam(PARAM_MESSAGE, true)) {
-            message = request->getParam(PARAM_MESSAGE, true)->value();
-        } else {
-            message = "No message sent";
-        }
-        request->send(200, "text/plain", "Hello, POST: " + message);
-    });
-
-    server.onNotFound(notFound);
-
-    server.begin();
-
-   
+   // Send a GET request to <ESP_IP>/update?output=<inputMessage1>&state=<inputMessage2>
+  server.on("/update", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    String inputMessage1;
+    String inputMessage2;
+    // GET input1 value on <ESP_IP>/update?output=<inputMessage1>&state=<inputMessage2>
+    if (request->hasParam(PARAM_INPUT_1) && request->hasParam(PARAM_INPUT_2)) {
+      inputMessage1 = request->getParam(PARAM_INPUT_1)->value();
+      inputMessage2 = request->getParam(PARAM_INPUT_2)->value();
+      digitalWrite(inputMessage1.toInt(), inputMessage2.toInt());
+    }
+    else {
+      inputMessage1 = "No message sent";
+      inputMessage2 = "No message sent";
+    }
+    Serial.print("GPIO: ");
+    Serial.print(inputMessage1);
+    Serial.print(" - Set to: ");
+    Serial.println(inputMessage2);
+    request->send(200, "text/plain", "OK");
+  });
+    // Start server
+  server.begin();
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //Traduz status do WiFi
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -304,8 +277,8 @@ void ReadVin ()
   VinRes=map(VinVal,0,4095,0,50);
   VinRes= (VinRes/10);
   //Mostrar no serial
-  Serial.print(VinRes);
-  Serial.println("V");
+  //Serial.print(VinRes);
+  //Serial.println("V");
   display.setTextColor(WHITE, BLACK);
   display.setCursor(0,15);  
   display.print(VinRes);
@@ -335,8 +308,8 @@ void ReadDis()
   
 
   // Prints the distance in the Serial Monitor
-  Serial.print("Distance (cm): ");
-  Serial.println(distanceCm);
+  //Serial.print("Distance (cm): ");
+  //Serial.println(distanceCm);
  
   // Prints the distance in the OLED LCD
   display.setCursor(70,15); 
