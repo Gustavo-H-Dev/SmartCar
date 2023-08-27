@@ -1,38 +1,3 @@
-#include <Arduino.h>
-#include <Arduino.h>
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <WebServer.h>
-#include <uri/UriBraces.h>
-#include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-
-
-//Criando registradores
-bool FrtStatus = false;
-bool BckStatus = false;
-bool DirStatus = false;
-bool EsqStatus = false;
-bool StpStatus = false;
-
-//Dados passados para o html
-const char* PARAM_INPUT_1 = "output";
-const char* PARAM_INPUT_2 = "state";
-
-// Definindo a porta
-//WebServer server(80);
-AsyncWebServer server(80);
-
-//caso acesse uma página incorreta
-void notFound(AsyncWebServerRequest *request) {
-    request->send(404, "text/plain", "Not found");
-}
-
-
-const char index_html[] PROGMEM = R"rawliteral(
-
 <!DOCTYPE HTML>
 <html>
 	<head>
@@ -155,7 +120,7 @@ setInterval(function(){
 		var xhr = new XMLHttpRequest();
         xhr.open("POST", '/', true); // inicializa uma nova requisição, ou reinicializa uma requisição já existente.
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); // define o valor do cabeçalho de uma requisição HTTP
-		xhr.send(res); } , 2000);
+		xhr.send(res); } , 50);
        
 
 
@@ -166,8 +131,3 @@ setInterval(function(){
 
 	</body>
 </html>
-
-)rawliteral";
-
-
-
