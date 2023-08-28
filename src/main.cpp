@@ -85,7 +85,11 @@ int timr1 = 0;
 
 //Wifi
 int StsWifi = 0;
-String StsMeaning = "Hello"; 
+String StsMeaning = "Hello";
+
+//http request
+String Joy1Dir = "C";
+String Joy2Dir = "C";
 
 
 String outputState(int output){
@@ -202,9 +206,14 @@ void setup()
     // Verifique se o parâmetro POST existe ou não
     if (request->hasParam("Joy1", true)) {
       AsyncWebParameter* p = request->getParam("Joy1", true);
+     
       Serial.printf("O parâmetro POST %s existe e possui o valor %s\n", p->name().c_str(), p->value().c_str());
+
+
       AsyncWebParameter* q = request->getParam("Joy2", true);
+  
       Serial.printf("O parâmetro POST %s existe e possui o valor %s\n", q->name().c_str(), q->value().c_str());
+
     }
     
     else {

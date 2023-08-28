@@ -155,7 +155,7 @@ setInterval(function(){
 		var xhr = new XMLHttpRequest();
         xhr.open("POST", '/', true); // inicializa uma nova requisição, ou reinicializa uma requisição já existente.
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); // define o valor do cabeçalho de uma requisição HTTP
-		xhr.send(res); } , 2000);
+		xhr.send(res); } , 5000);
        
 
 
