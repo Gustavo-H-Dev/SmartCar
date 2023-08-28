@@ -88,8 +88,8 @@ int StsWifi = 0;
 String StsMeaning = "Hello";
 
 //http request
-String Joy1Dir = "C";
-String Joy2Dir = "C";
+String Joy1Dir = "Note";
+String Joy2Dir = "Note";
 
 
 String outputState(int output){
@@ -206,14 +206,15 @@ void setup()
     // Verifique se o parâmetro POST existe ou não
     if (request->hasParam("Joy1", true)) {
       AsyncWebParameter* p = request->getParam("Joy1", true);
-     
-      Serial.printf("O parâmetro POST %s existe e possui o valor %s\n", p->name().c_str(), p->value().c_str());
-
-
+      Joy1Dir = ("%s\n", p->name().c_str(), p->value().c_str());
+      //Serial.print("O Valor de Joy1= ");
+      //Serial.println(Joy1Dir);
+      
       AsyncWebParameter* q = request->getParam("Joy2", true);
-  
-      Serial.printf("O parâmetro POST %s existe e possui o valor %s\n", q->name().c_str(), q->value().c_str());
-
+      Joy2Dir =  ("%s\n", q->name().c_str(), q->value().c_str());
+      //Serial.print("O Valor de Joy2= ");
+      //Serial.println(Joy2Dir);
+      //Joy2Dir = Joy2Dir.toInt();
     }
     
     else {
@@ -322,23 +323,99 @@ void ReadDis()
 }
 
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
+// Rotina que move os motores
+/////////////////////////////////////////////////////////////////////////////////////////
+void MoveCar()
+{
+  Serial.println("Valor de Joy1DIR= ");
+  Serial.println(Joy1Dir);
+ if (Joy1Dir.equals("C")) {
+        digitalWrite(DirFrente, LOW);
+        digitalWrite(EsqFrente, LOW);
+        digitalWrite(DirTras, LOW);
+        digitalWrite(EsqTras, LOW);
+        Serial.println("Parado");
+}
+else if (Joy1Dir == "N") {
+        digitalWrite(DirFrente, HIGH);
+        digitalWrite(EsqFrente, HIGH);
+        digitalWrite(DirTras, LOW);
+        digitalWrite(EsqTras, LOW);
+        Serial.println("Frente Total");        
+}
+else if (Joy1Dir == "NE") {
+        digitalWrite(EsqFrente, HIGH);
+        digitalWrite(DirFrente, LOW);
+        digitalWrite(DirTras, LOW);
+        digitalWrite(EsqTras, LOW);
+        Serial.println("Direita frente");   
+}
+else if (Joy1Dir == "E") {
+        digitalWrite(DirFrente, LOW);
+        digitalWrite(EsqFrente, HIGH);
+        digitalWrite(DirTras, HIGH);
+        digitalWrite(EsqTras, LOW);
+        Serial.println("Giro Á direita");  
+}
+else if (Joy1Dir == "SE") {
+        digitalWrite(DirFrente, LOW);
+        digitalWrite(EsqFrente, LOW);
+        digitalWrite(DirTras, LOW);
+        digitalWrite(EsqTras, HIGH);
+        Serial.println("TRAS Direita");    
+}
+else if (Joy1Dir == "S") {
+        digitalWrite(DirFrente, LOW);
+        digitalWrite(EsqFrente, LOW);
+        digitalWrite(DirTras, HIGH);
+        digitalWrite(EsqTras, HIGH);
+        Serial.println("TRAS");
+}
+else if (Joy1Dir == "SW") {
+        digitalWrite(DirFrente, LOW);
+        digitalWrite(EsqFrente, LOW);
+        digitalWrite(DirTras, HIGH);
+        digitalWrite(EsqTras, LOW);
+        Serial.println("Tras esquerda");    
+}
+else if (Joy1Dir == "W") {
+        digitalWrite(EsqFrente, LOW);
+        digitalWrite(DirFrente, HIGH);
+        digitalWrite(DirTras, LOW);
+        digitalWrite(EsqTras, HIGH);
+        Serial.println("Giro a esquerda");  
+}
+else if (Joy1Dir == "NW") {
+        digitalWrite(DirFrente, HIGH);
+        digitalWrite(EsqFrente, LOW);
+        digitalWrite(DirTras, LOW);
+        digitalWrite(EsqTras, LOW);
+        Serial.println("Frente Esquerda");     
+}
+else {
+        Serial.println("Deu ruim");      
+}
+
+  Serial.println("Fim");
+  Serial.println(" ");
+  Serial.println(" ");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 // Rotina principal que vai ficar loopando
 /////////////////////////////////////////////////////////////////////////////////////////
 void loop()
 {
   
   //server.handleClient();
-  delay(200); 
+  delay(100); 
   timr0 = (timr1 - millis());
   if (timr0 < -2000)
   {
   timr1 = millis();  
   ReadVin();
   ReadDis();
-
   }
-
-  
+  MoveCar();
 }
