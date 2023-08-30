@@ -87,6 +87,9 @@ body
 		<script src="http://bobboteck.github.io/joy/joy.js"></script>
 	</head>
 	<body>
+	    <div>
+        <img id="stream" src="http://192.168.1.8:81/stream" crossorigin="">
+        </div>  
 		<div> 
 		<div class="row">
 			<div class="columnLateral">
