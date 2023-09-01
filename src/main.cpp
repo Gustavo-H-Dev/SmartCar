@@ -237,7 +237,8 @@ void setup()
 void ReadWifiStatus()
 { 
   StsWifi = (WiFi.status());
-  switch(StsWifi) {
+  switch(StsWifi) 
+    {
     case 255:
     StsMeaning = "Sem Shield";
     break;
@@ -273,10 +274,16 @@ void ReadWifiStatus()
     default:
     StsMeaning = "Desconhecido";
     break;
+    }
+display.clearDisplay();
+display.display();
+display.setCursor(0,0);
+display.print("Rede:");
+display.println(WiFi.SSID());
+display.print("IP: ");
+display.println(WiFi.localIP());
+display.display(); // actual
 }
-}
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Rotina para Ler a distância
@@ -286,16 +293,12 @@ void ReadVin ()
   VinVal = analogRead(Vin);
   VinRes=map(VinVal,0,4095,0,50);
   VinRes= (VinRes/10);
-  //Mostrar no serial
-  //Serial.print(VinRes);
-  //Serial.println("V");
   display.setTextColor(WHITE, BLACK);
   display.setCursor(0,15);  
   display.print(VinRes);
   display.print("V");
   display.display(); 
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Rotina para Ler a distância
@@ -316,10 +319,6 @@ void ReadDis()
   // Calculate the distance
   distanceCm = duration * SOUND_SPEED/2;
   
-
-  // Prints the distance in the Serial Monitor
-  //Serial.print("Distance (cm): ");
-  //Serial.println(distanceCm);
  
   // Prints the distance in the OLED LCD
   display.setCursor(70,15); 
@@ -333,78 +332,63 @@ void ReadDis()
 /////////////////////////////////////////////////////////////////////////////////////////
 void MoveCar()
 {
-  Serial.println("Valor de Joy1DIR= ");
-  Serial.println(Joy1Dir);
  if (Joy1Dir.equals("C")) {
         digitalWrite(DirFrente, LOW);
         digitalWrite(EsqFrente, LOW);
         digitalWrite(DirTras, LOW);
         digitalWrite(EsqTras, LOW);
-        Serial.println("Parado");
 }
 else if (Joy1Dir == "N") {
         digitalWrite(DirFrente, HIGH);
         digitalWrite(EsqFrente, HIGH);
         digitalWrite(DirTras, LOW);
         digitalWrite(EsqTras, LOW);
-        Serial.println("Frente Total");        
 }
 else if (Joy1Dir == "NE") {
         digitalWrite(EsqFrente, HIGH);
         digitalWrite(DirFrente, LOW);
         digitalWrite(DirTras, LOW);
         digitalWrite(EsqTras, LOW);
-        Serial.println("Direita frente");   
 }
 else if (Joy1Dir == "E") {
         digitalWrite(DirFrente, LOW);
         digitalWrite(EsqFrente, HIGH);
         digitalWrite(DirTras, HIGH);
         digitalWrite(EsqTras, LOW);
-        Serial.println("Giro Á direita");  
 }
 else if (Joy1Dir == "SE") {
         digitalWrite(DirFrente, LOW);
         digitalWrite(EsqFrente, LOW);
         digitalWrite(DirTras, LOW);
         digitalWrite(EsqTras, HIGH);
-        Serial.println("TRAS Direita");    
 }
 else if (Joy1Dir == "S") {
         digitalWrite(DirFrente, LOW);
         digitalWrite(EsqFrente, LOW);
         digitalWrite(DirTras, HIGH);
         digitalWrite(EsqTras, HIGH);
-        Serial.println("TRAS");
 }
 else if (Joy1Dir == "SW") {
         digitalWrite(DirFrente, LOW);
         digitalWrite(EsqFrente, LOW);
         digitalWrite(DirTras, HIGH);
         digitalWrite(EsqTras, LOW);
-        Serial.println("Tras esquerda");    
 }
 else if (Joy1Dir == "W") {
         digitalWrite(EsqFrente, LOW);
         digitalWrite(DirFrente, HIGH);
         digitalWrite(DirTras, LOW);
         digitalWrite(EsqTras, HIGH);
-        Serial.println("Giro a esquerda");  
 }
 else if (Joy1Dir == "NW") {
         digitalWrite(DirFrente, HIGH);
         digitalWrite(EsqFrente, LOW);
         digitalWrite(DirTras, LOW);
         digitalWrite(EsqTras, LOW);
-        Serial.println("Frente Esquerda");     
 }
 else {
         Serial.println("Deu ruim");      
 }
-
-  Serial.println("Fim");
-  Serial.println(" ");
-  Serial.println(" ");
 }
 
 
@@ -466,6 +450,7 @@ void loop()
   timr1 = millis();  
   ReadVin();
   ReadDis();
+  ReadWifiStatus();
   }
   MoveCar();
 MyServo.write(pos);

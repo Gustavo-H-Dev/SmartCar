@@ -38,8 +38,8 @@ const char index_html[] PROGMEM = R"rawliteral(
 	<head>
 		<title>Controle do Carrinho</title>
 		<meta charset="utf-8">
-		<meta name="description" content="Example page of use pure Javascript JoyStick">
-		<meta name="author" content="Roberto D'Amico">
+		<meta name="description" content="SmartCar">
+		<meta name="author" content="Gustavo Souza">
 		<link rel="shortcut icon" type="image/png" href="https://bobboteck.github.io/img/roberto-damico-bobboteck.png">
 		<style>
 *
