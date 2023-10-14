@@ -49,7 +49,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 WiFiMulti wifiMulti;
 
 //Para ser usado os servomotores
-Servo MyServo;
+Servo MyServoA; // servo que controla a Altura da camera
+Servo MyServoL; //Lateral
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Definir Variaveis Para indicar o que cada pino vai ser
@@ -66,8 +67,13 @@ const int echoPin = 19;
 const int Vin = 35;
 int VinVal = 0;
 //Servo
-const int SERVO_PIN = 26;
-int pos = 0;
+const int SERVOA_PIN = 2;
+const int SERVOL_PIN = 4;
+int posA = 90;
+int posL = 90;
+int posA1 = 90;
+int posL1 = 90;
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +148,8 @@ void setup()
   ledcSetup(0, 1000, 10);//Atribuimos ao canal 0 a frequencia de 1000Hz com resolucao de 10bits. 
 
   //Servo Config
-  MyServo.attach(SERVO_PIN);
+  MyServoA.attach(SERVOA_PIN);
+  MyServoL.attach(SERVOL_PIN);
 
 //OLED CONFI
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
@@ -399,39 +406,86 @@ void MoveCam()
 {
 
  if (Joy2Dir.equals("C")) {
-        Serial.println("Parado");
+        //Serial.println("Parado");
 }
-else if (Joy2Dir == "N") {
-        Serial.println("Frente Total");        
-}
-else if (Joy2Dir == "NE") {
-        Serial.println("Direita frente");   
-}
-else if (Joy2Dir == "E") {
-        Serial.println("Giro Á direita");  
-}
-else if (Joy2Dir == "SE") {
-        Serial.println("TRAS Direita");    
-}
-else if (Joy2Dir == "S") {
-        Serial.println("TRAS");
-}
-else if (Joy2Dir == "SW") {
-        Serial.println("Tras esquerda");    
-}
-else if (Joy2Dir == "W") {
-        Serial.println("Giro a esquerda");  
-}
-else if (Joy2Dir == "NW") {
-        Serial.println("Frente Esquerda");     
-}
+else if (Joy2Dir == "N") 
+  {
+    if (posA < 180)
+    {posA = posA + 1;}
+    
+               
+  }
+else if (Joy2Dir == "NE") 
+  {
+    if (posA < 180)
+    {posA = posA + 1;}
+    if (posL <  180)
+    {posL = posL + 1;}    
+  }
+else if (Joy2Dir == "E") 
+  {
+        if (posL <  180)
+    {posL = posL + 1;}  
+  }
+else if (Joy2Dir == "SE") 
+  {
+    if (posA > 0)
+    {posA = posA - 1;}
+    if (posL <  180)
+    {posL = posL + 1;}    
+  }
+else if (Joy2Dir == "S") 
+  {
+    if (posA > 0)
+    {posA = posA - 1;}
+    
+  }
+else if (Joy2Dir == "SW") 
+  {
+    if (posA > 0)
+    {posA = posA - 1;}
+    
+    if (posL > 0)
+    {posL = posL - 1;}    
+  }
+else if (Joy2Dir == "W") 
+  {
+        
+        if (posL > 0)
+        {posL = posL - 1;}  
+  }
+else if (Joy2Dir == "NW") 
+  {
+    if (posA < 180)
+    {posA = posA + 1;}
+    
+    if (posL > 0)
+    {posL = posL - 1;}     
+  }
 else {
         Serial.println("Deu ruim");      
 }
 
-  Serial.println("Fim");
-  Serial.println(" ");
-  Serial.println(" ");
+
+
+
+if (posA != posA1)
+{
+  MyServoA.write(posA);
+  posA1 = posA;
+  Serial.print("posA= ");
+  Serial.println(posA);
+  Serial.println("");
+}
+
+if (posL != posL1)
+{
+  MyServoL.write(posL);
+  posL1 = posL;
+  Serial.print("posL= ");
+  Serial.println(posL);
+  Serial.println("");
+}
 }
 
 
@@ -443,7 +497,7 @@ void loop()
 {
   
   //server.handleClient();
-  delay(100); 
+  delay(10); 
   timr0 = (timr1 - millis());
   if (timr0 < -2000)
   {
@@ -453,5 +507,6 @@ void loop()
   ReadWifiStatus();
   }
   MoveCar();
-MyServo.write(pos);
+  MoveCam();
+
 }
